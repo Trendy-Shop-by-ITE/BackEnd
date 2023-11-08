@@ -21,31 +21,45 @@ const create = (req, res) => {
         message.password = "password is required"
     }
     if (Object.keys(message).length > 0) {
-        res.json({
+        res.status(401).json({
             err: true,
-            message: message
-        })
+            message: message,
+            message: {
+                err: ""
+            }
+        });
         return
     }
 
     db.query("SELECT * FROM `users` WHERE phone = ?", [phone], (err, row) => {
         if (!err) {
             if (row.length > 0) {
-                res.json({
-                    message: "phone is already"
-                })
+                res.status(403).json({
+                    err: true,
+                    message: "phone is already",
+                    messages: {
+                        err: "phone is already"
+                    }
+                });
             } else {
                 var paramInsert = [username, phone, email, gender, password]
                 db.query(sqlStatement, paramInsert, (err, row) => {
                     if (err) {
-                        res.json({
-                            err: true,
-                            message: err
-                        })
+                        res.status(500).json({
+                            error: true,
+                            message: "Error occurred while create user",
+                            messages: {
+                                err: "SignUp failed"
+                            }
+                        });
                     }
                     else {
                         res.json({
+                            error: false,
                             message: "success create",
+                            messages: {
+                                err: "success create"
+                            },
                             user: row
                         })
                     }
@@ -74,6 +88,42 @@ const getOne = (req, res) => {
         }
     })
 }
+
+const getUserInfo = (req, res) => {
+    const userId = req.user.user_id; // User's ID from the token
+    const sqlStatement = "SELECT * FROM users WHERE user_id = ?";
+    const params = [userId];
+    db.query(sqlStatement, params, (err, row) => {
+        if (err) {
+            return res.status(500).json({
+                error: true,
+                message: err.message,
+                message: {
+                    err: err.message
+                }
+            });
+        }
+        if (row.length === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "User not found",
+                message: {
+                    err: "User not found"
+                }
+            });
+        }
+        // Return the user's information
+        res.json({
+            error: false,
+            message: "",
+            messages: {
+                err: ""
+            },
+            user: row[0]
+        });
+    });
+};
+
 
 const getOneWithAddress = (req, res) => {
     var authenticatedUserId = req.user.user_id; // Get the authenticated user's ID from the middleware
@@ -222,30 +272,37 @@ const userLogin = (req, res) => {
         message.password = "password is required";
     }
     if (Object.keys(message).length > 0) {
-        res.json({
+        res.status(401).json({
             err: true,
-            message: message
+            message: message,
+            message: {
+                err: ""
+            }
         });
         return;
     }
 
     db.query("SELECT * FROM users WHERE phone = ?", [phone], (err, row) => {
         if (err) {
-            res.json({
+            res.status(500).json({
                 error: true,
-                message: "Error occurred while fetching user"
+                message: "Error occurred while fetching user",
+                message: {
+                    err: ""
+                }
             });
             return;
         }
 
         if (row.length == 0) {
-            res.json({
+            res.status(401).json({
                 error: true,
-                message: {
-                    error: true,
-                    phone: "Phone does not exist"
+                message: "Login fail",
+                messages: {
+                    err: "User does not exits!"
                 }
             });
+
         } else {
             const user = row[0];
             const passwordDb = user.password;
@@ -263,24 +320,29 @@ const userLogin = (req, res) => {
                     const access_token = jwt.sign({ data: { ...obj } }, process.env.TOKEN_KEY);
 
                     res.json({
+                        error: false,
+                        message: "Login successful",
+                        messages: {
+                            err: "Password correct!"
+                        },
                         ...obj,
                         access_token: access_token
                     });
                 } else {
-                    res.json({
+                    res.status(403).json({
                         error: true,
                         message: "Login fail",
                         messages: {
-                            role: "You don't have permission to login"
+                            err: "You don't have permission to login"
                         }
                     });
                 }
             } else {
-                res.json({
+                res.status(401).json({
                     error: true,
                     message: "Login fail",
                     messages: {
-                        password: "Password incorrect!"
+                        err: "Password incorrect!"
                     }
                 });
             }
@@ -298,28 +360,34 @@ const adminLogin = (req, res) => {
         message.password = "password is required";
     }
     if (Object.keys(message).length > 0) {
-        res.json({
+        res.status(401).json({
             err: true,
-            message: message
+            message: message,
+            message: {
+                err: ""
+            }
         });
         return;
     }
 
     db.query("SELECT * FROM users WHERE phone = ?", [phone], (err, row) => {
         if (err) {
-            res.json({
+            res.status(500).json({
                 error: true,
-                message: "Error occurred while fetching user"
+                message: "Error occurred while fetching user",
+                message: {
+                    err: ""
+                }
             });
             return;
         }
 
         if (row.length == 0) {
-            res.json({
+            res.status(401).json({
                 error: true,
+                message: "Login failed",
                 message: {
-                    error: true,
-                    phone: "Phone does not exist"
+                    err: "Phone does not exist"
                 }
             });
         } else {
@@ -339,24 +407,29 @@ const adminLogin = (req, res) => {
                     const access_token = jwt.sign({ data: { ...obj } }, process.env.TOKEN_KEY);
 
                     res.json({
+                        error: false,
+                        message: "Login successful",
+                        messages: {
+                            err: "Password correct!"
+                        },
                         ...obj,
                         access_token: access_token
                     });
                 } else {
-                    res.json({
+                    res.status(403).json({
                         error: true,
                         message: "Login fail",
                         messages: {
-                            role: "You don't have permission to login"
+                            err: "You don't have permission to login"
                         }
                     });
                 }
             } else {
-                res.json({
+                res.status(401).json({
                     error: true,
                     message: "Login fail",
                     messages: {
-                        password: "Password incorrect!"
+                        err: "Password incorrect!"
                     }
                 });
             }
@@ -374,5 +447,6 @@ module.exports = {
     deleteUser,
     userLogin,
     getOneWithAddress,
-    adminLogin
+    adminLogin, 
+    getUserInfo
 }

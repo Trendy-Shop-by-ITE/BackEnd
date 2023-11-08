@@ -15,6 +15,7 @@ const product = (app) => {
     app.put('/api/products/:id',userGuard, adminGuard, productController.updateProduct);
     app.delete('/api/products/:id',userGuard, adminGuard, productController.deleteProduct);
     app.get('/api/products', productController.getAllProducts);
+    app.get('/api/productsV2', productController.getAllProductsV2);
     app.get('/api/products/get-one/:id', productController.getOneProduct);
     app.get('/api/products-with-categories', productController.getProductsWithCategories);
     app.get('/api/products-detail-by-subcategory/:subcategory_id', productController.getProductsBySubcategoryWithFullDetail);
