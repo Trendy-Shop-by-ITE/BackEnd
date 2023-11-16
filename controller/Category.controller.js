@@ -24,8 +24,31 @@ const createSubCategory = (req, res) => {
     });
 }
 
+// const getTopLevelCategory = (req, res) => {
+//     const query = 'SELECT * FROM Category WHERE parent_id IS NULL'; // Fetch top-level categories
+//     db.query(query, (err, results) => {
+//         if (err) {
+//             console.error('Error fetching top-level categories:', err);
+//             return res.status(500).json({ error: 'Error fetching categories' });
+//         }
+//         res.json(results);
+//     });
+// }
+
+// const getCategoryWithParentId = (req, res) => {
+//     const topCategoryId = req.params.id;
+//     const query = 'SELECT * FROM Category WHERE parent_id = ?';
+//     db.query(query, [topCategoryId], (err, results) => {
+//         if (err) {
+//             console.error('Error fetching subcategories:', err);
+//             return res.status(500).json({ error: 'Error fetching subcategories' });
+//         }
+//         res.json(results);
+//     });
+// }
+
 const getTopLevelCategory = (req, res) => {
-    const query = 'SELECT * FROM Category WHERE parent_id IS NULL'; // Fetch top-level categories
+    const query = 'SELECT c.*, ci.image_url FROM Category c LEFT JOIN categoryimages ci ON c.id = ci.category_id WHERE c.parent_id IS NULL';
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching top-level categories:', err);
@@ -37,7 +60,7 @@ const getTopLevelCategory = (req, res) => {
 
 const getCategoryWithParentId = (req, res) => {
     const topCategoryId = req.params.id;
-    const query = 'SELECT * FROM Category WHERE parent_id = ?';
+    const query = 'SELECT c.*, ci.image_url FROM Category c LEFT JOIN categoryimages ci ON c.id = ci.category_id WHERE c.parent_id = ?';
     db.query(query, [topCategoryId], (err, results) => {
         if (err) {
             console.error('Error fetching subcategories:', err);
@@ -46,6 +69,7 @@ const getCategoryWithParentId = (req, res) => {
         res.json(results);
     });
 }
+
 
 const getOne = (req, res) => {
     const categoryId = req.params.id;

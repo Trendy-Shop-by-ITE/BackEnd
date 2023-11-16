@@ -18,6 +18,8 @@ const product = (app) => {
     app.get('/api/products/get-one/:id', productController.getOneProduct);
     app.get('/api/products-with-categories', productController.getProductsWithCategories);
     app.get('/api/products-detail-by-subcategory/:subcategory_id', productController.getProductsBySubcategoryWithFullDetail);
+    app.get('/api/productsV2', productController.getAllProductsV2);
+
 
     // app.get('/api/getProductDetail-byId/:productId', productController.getProductWithDetails);
 
