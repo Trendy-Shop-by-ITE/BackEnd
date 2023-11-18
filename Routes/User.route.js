@@ -11,6 +11,7 @@ const user = (app) => {
     app.delete('/api/user/delete/:id',userGuard, adminGuard, userController.deleteUser)
     app.post('/api/user/login/user', userController.userLogin)
     app.post('/api/user/login/admin', userController.adminLogin)
+    app.get('/api/user/get-one', userGuard, userController.getUserInfo)
 
 
 }

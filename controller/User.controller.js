@@ -178,6 +178,41 @@ const updateUser = (req, res) => {
     })
 
 }
+const getUserInfo = (req, res) => {
+    const userId = req.user.user_id; // User's ID from the token
+    const sqlStatement = "SELECT * FROM users WHERE user_id = ?";
+    const params = [userId];
+    db.query(sqlStatement, params, (err, row) => {
+        if (err) {
+            return res.status(500).json({
+                error: true,
+                message: err.message,
+                message: {
+                    err: err.message
+                }
+            });
+        }
+        if (row.length === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "User not found",
+                message: {
+                    err: "User not found"
+                }
+            });
+        }
+        // Return the user's information
+        res.json({
+            error: false,
+            message: "",
+            messages: {
+                err: ""
+            },
+            user: row[0]
+        });
+    });
+};
+
 
 const deleteUser = (req, res) => {
     var id = req.params.id
@@ -374,5 +409,6 @@ module.exports = {
     deleteUser,
     userLogin,
     getOneWithAddress,
-    adminLogin
+    adminLogin,
+    getUserInfo
 }
