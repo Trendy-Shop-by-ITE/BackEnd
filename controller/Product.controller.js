@@ -238,7 +238,7 @@ const getAllProductsV2 = (req, res) => {
     let productsQuery = `
         SELECT p.*, c.name AS category_name, SUM(pi.amount) AS total_amount
         FROM products AS p
-        LEFT JOIN category AS c ON p.category_id = c.id
+        LEFT JOIN Category AS c ON p.category_id = c.id
         LEFT JOIN product_items AS pi ON p.id = pi.product_id
     `;
 
