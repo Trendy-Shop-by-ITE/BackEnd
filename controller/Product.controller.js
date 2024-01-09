@@ -443,6 +443,7 @@ const getOneProduct = (req, res) => {
             product_name: productResults[0].product_name,
             product_price: productResults[0].product_price,
             product_discount: productResults[0].product_discount,
+            product_description: productResults[0].description,
             amount: productResults[0].total_amount, // Set the amount from the SUM query
             available_size: [],
             available_color: [],

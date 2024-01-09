@@ -1,9 +1,9 @@
 const db = require('../config/database/db.config')
 
 const createTopLevelCategory = (req, res) => {
-    const { name, image_url } = req.body;
-    const query = 'INSERT INTO Category (name, image_url) VALUES (?, ?)';
-    db.query(query, [name, image_url], (err, result) => {
+    const { name } = req.body;
+    const query = 'INSERT INTO Category (name) VALUES (?)';
+    db.query(query, [name], (err, result) => {
         if (err) {
             console.error('Error creating top-level category:', err);
             return res.status(500).json({ error: 'Error creating top-level category' });
@@ -13,9 +13,9 @@ const createTopLevelCategory = (req, res) => {
 }
 
 const createSubCategory = (req, res) => {
-    const { name, image_url, parent_id } = req.body;
-    const query = 'INSERT INTO Category (name, image_url, parent_id) VALUES (?, ?, ?)';
-    db.query(query, [name, image_url, parent_id], (err, result) => {
+    const { name, parent_id } = req.body;
+    const query = 'INSERT INTO Category (name, parent_id) VALUES (?, ?)';
+    db.query(query, [name, parent_id], (err, result) => {
         if (err) {
             console.error('Error creating subcategory:', err);
             return res.status(500).json({ error: 'Error creating subcategory' });
