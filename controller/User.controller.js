@@ -133,51 +133,52 @@ const getAll = (req, res) => {
 }
 
 const updateUser = (req, res) => {
-    var body = req.body
-    var password = bycript.hashSync(body.password, 10)
-    var sqlStatement = "UPDATE users SET username = ?, phone = ?, email = ?, gender = ?, password = ? WHERE user_id = ? "
-    var pramm = [body.username, body.phone, body.email, body.gender, password, body.id]
-    // db.query("SELECT * FROM `user` WHERE phone = ?", [body.phone],(err, row) => {
-    //     if(!err){
-    //         if(row.length>0){
-    //             res.json({
-    //                 message: "phone is already"
-    //             })
-    //         }else{
-    //             db.query(sqlStatement, pramm, (err, row) => {
-    //                 if (err) {
-    //                     res.json({
-    //                         err: true,
-    //                         message: err
-    //                     })
-    //                 }
-    //                 else {
-    //                     res.json({
-    //                         message: "update successfully",
-    //                         user: row
-    //                     })
-    //                 }
-    //             })
-    //         }
-    //     }
-    // })
+    const body = req.body;
+    const userId = body.id;
 
-    db.query(sqlStatement, pramm, (err, row) => {
+    // Check if body.password exists before hashing
+    const hashedPassword = body.password ? bycript.hashSync(body.password, 10) : undefined;
+
+    // Build the dynamic update statement
+    const updateFields = Object.keys(body).filter(key => key !== 'id' && key !== 'password' && body[key] !== undefined);
+    const updateValues = updateFields.map(key => (key === 'password' ? hashedPassword : body[key]));
+
+    // If no fields to update, return an error
+    if (updateFields.length === 0) {
+        res.json({
+            error: true,
+            message: "No fields to update"
+        });
+        return;
+    }
+
+    const placeholders = updateFields.map(field => `${field} = ?`).join(', ');
+    const sqlStatement = `UPDATE users SET ${placeholders} WHERE user_id = ?`;
+
+    const params = [...updateValues, userId];
+
+    // Execute the update query
+    db.query(sqlStatement, params, (err, result) => {
         if (err) {
             res.json({
-                err: true,
-                message: err
-            })
+                error: true,
+                message: "Update failed"
+            });
+        } else {
+            if (result.affectedRows > 0) {
+                res.json({
+                    message: "Update successful",
+                    user: { user_id: userId, ...body }
+                });
+            } else {
+                res.json({
+                    message: "No user found with the given ID"
+                });
+            }
         }
-        else {
-            res.json({
-                message: "update successfully",
-                user: row
-            })
-        }
-    })
+    });
+};
 
-}
 const getUserInfo = (req, res) => {
     const userId = req.user.user_id; // User's ID from the token
     const sqlStatement = "SELECT * FROM users WHERE user_id = ?";
