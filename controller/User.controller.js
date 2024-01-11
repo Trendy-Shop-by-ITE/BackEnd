@@ -267,7 +267,7 @@ const userLogin = (req, res) => {
 
     db.query("SELECT * FROM users WHERE phone = ?", [phone], (err, row) => {
         if (err) {
-            res.json({
+            res.status(500).json({
                 error: true,
                 message: "Error occurred while fetching user"
             });
@@ -275,11 +275,11 @@ const userLogin = (req, res) => {
         }
 
         if (row.length == 0) {
-            res.json({
+            res.status(404).json({
                 error: true,
+                message: "Login fail",
                 message: {
-                    error: true,
-                    phone: "Phone does not exist"
+                    err: "Phone does not exist"
                 }
             });
         } else {
@@ -303,20 +303,20 @@ const userLogin = (req, res) => {
                         access_token: access_token
                     });
                 } else {
-                    res.json({
+                    res.status(403).json({
                         error: true,
                         message: "Login fail",
                         messages: {
-                            role: "You don't have permission to login"
+                            err: "You don't have permission to login"
                         }
                     });
                 }
             } else {
-                res.json({
+                res.status(404).json({
                     error: true,
                     message: "Login fail",
                     messages: {
-                        password: "Password incorrect!"
+                        err: "Password incorrect!"
                     }
                 });
             }

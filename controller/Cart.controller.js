@@ -40,28 +40,52 @@ const addToCart = (req, res) => {
         db.query(productItemQuery, [product_item_id], (err, productItemResult) => {
             if (err) {
                 console.error('Error checking product item:', err);
-                return res.status(500).json({ error: 'Error checking product item' });
+                return res.status(500).json({
+                    error: true,
+                    message: "add fail",
+                    messages: {
+                        err: "Error checking product item"
+                    }
+                });
             }
 
             if (productItemResult.length === 0) {
-                return res.status(404).json({ error: 'Product item not found' });
+                return res.status(404).json({
+                    error: true,
+                    message: "add fail",
+                    messages: {
+                        err: 'Product item not found'
+                    }
+                });
             }
 
             const productItem = productItemResult[0];
 
             // Check if there are enough items available
             if (productItem.amount < quantity) {
-                return res.status(400).json({ error: 'Not enough items available' });
+                return res.status(400).json({
+                    error: true,
+                    message: "add fail",
+                    messages: {
+                        err: 'Not enough items available'
+                    }
+                });
             }
 
             // Update the product item pending and amount
             const newPending = productItem.pending + quantity;
 
             const updateQuery = 'UPDATE product_items SET pending = ? WHERE id = ?';
-            db.query(updateQuery, [newPending,  product_item_id], (err, updateResult) => {
+            db.query(updateQuery, [newPending, product_item_id], (err, updateResult) => {
                 if (err) {
                     console.error('Error updating product item:', err);
-                    return res.status(500).json({ error: 'Error updating product item' });
+                    return res.status(500).json({
+                        error: true,
+                        message: "add fail",
+                        messages: {
+                            err: 'Error updating product item'
+                        }
+                    });
                 }
                 // You might want to add the product to the user's cart table here
                 // Assuming you have a cart table and can insert the product_item_id and quantity
@@ -69,7 +93,14 @@ const addToCart = (req, res) => {
                 db.query(addToCartQuery, [user_id, product_item_id, quantity], (err, addToCartResult) => {
                     if (err) {
                         console.error('Error adding item to cart:', err);
-                        return res.status(500).json({ error: 'Error adding item to cart' });
+                        return res.status(500).json({
+                            error: true,
+                            message: "add fail",
+                            messages: {
+                                err: 'Error adding item to cart'
+                            }
+
+                        });
                     }
 
                     res.json({ message: 'Item added to the cart successfully' });
@@ -77,7 +108,13 @@ const addToCart = (req, res) => {
             });
         });
     } else {
-        res.status(403).json({ error: "You don't have permission to add this item to the cart" });
+        res.status(403).json({
+            error: true,
+            message: "add fail",
+            messages: {
+                err: "You don't have permission to add this item to the cart"
+            }
+        });
     }
 };
 
