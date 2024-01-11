@@ -165,7 +165,7 @@ const addToCart = (req, res) => {
 //     });
 // };
 const getCartByUser = (req, res) => {
-    const authenticatedUserId = req.user.user_id; // Get the authenticated user's ID from the middleware
+    const authenticatedUserId = req.user.user_id;
     const userId = req.params.user_id;
 
     // Check if the authenticated user matches the user in the request
@@ -179,7 +179,7 @@ const getCartByUser = (req, res) => {
             WHERE cart.user_id = ?;
         `;
 
-        db.query(query, [userId], (err, results) => {
+        db.query(query, [userId], async (err, results) => {
             if (err) {
                 console.error('Error fetching user cart:', err);
                 return res.status(500).json({ error: 'Error fetching user cart' });
@@ -195,16 +195,32 @@ const getCartByUser = (req, res) => {
                     gender: results[0].gender,
                     // Add other user details here
                 },
-                cart: results.map((result) => ({
-                    cart_id: result.cart_id,
-                    size: result.size,
-                    color: result.color,
-                    color_code: result.color_code,
-                    quantity: result.quantity,
-                    product_id: result.product_id,
-                    product_name: result.product_name,
-                    product_price: result.product_price,
-                    product_discount: result.product_discount,
+                cart: await Promise.all(results.map(async (result) => {
+                    // Fetch a single image URL for each product with the same color_code
+                    const image = await new Promise((resolve, reject) => {
+                        const imageQuery = 'SELECT image_url FROM images WHERE product_id = ? AND color_code = ? LIMIT 1';
+                        db.query(imageQuery, [result.product_id, result.color_code], (err, imageResults) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(imageResults[0] ? imageResults[0].image_url : null);
+                            }
+                        });
+                    });
+
+                    // Combine product data with image data
+                    return {
+                        cart_id: result.cart_id,
+                        size: result.size,
+                        color: result.color,
+                        color_code: result.color_code,
+                        quantity: result.quantity,
+                        product_id: result.product_id,
+                        product_name: result.product_name,
+                        product_price: result.product_price,
+                        product_discount: result.product_discount,
+                        image: image, // Include image data in the cart item
+                    };
                 })),
             };
 
@@ -215,6 +231,10 @@ const getCartByUser = (req, res) => {
         res.status(403).json({ error: "You don't have permission to access this cart" });
     }
 };
+
+
+
+
 
 // Get Cart for All Users
 const getAllCarts = (req, res) => {
