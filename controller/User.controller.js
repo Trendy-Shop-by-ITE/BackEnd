@@ -269,7 +269,10 @@ const userLogin = (req, res) => {
         if (err) {
             res.status(500).json({
                 error: true,
-                message: "Error occurred while fetching user"
+                message: "Login fail",
+                message: {
+                    err: "Error occurred while fetching user"
+                }
             });
             return;
         }
