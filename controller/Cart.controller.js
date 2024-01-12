@@ -185,6 +185,11 @@ const getCartByUser = (req, res) => {
                 return res.status(500).json({ error: 'Error fetching user cart' });
             }
 
+            // Check if there are no results
+            if (!results || results.length === 0) {
+                return res.json({ message: 'User cart is empty' });
+            }
+
             // Organize the results in the desired format
             const userCart = {
                 user: {
@@ -231,6 +236,7 @@ const getCartByUser = (req, res) => {
         res.status(403).json({ error: "You don't have permission to access this cart" });
     }
 };
+
 
 
 
@@ -368,6 +374,26 @@ const deleteCartItem = (req, res) => {
     }
 };
 
+const deleteAllCartItems = (req, res) => {
+    // Delete all cart items in the table
+    const deleteAllCartItemsQuery = 'DELETE FROM cart';
+    db.query(deleteAllCartItemsQuery, (err, result) => {
+        if (err) {
+            console.error('Error deleting all cart items:', err);
+            return res.status(500).json({ message: 'Error deleting all cart items' });
+        }
+
+        // Check if any items were deleted
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'No cart items found to delete' });
+        }
+
+        res.json({ message: 'All cart items deleted successfully' });
+    });
+};
+
+
+
 // Get Cart Item by Cart ID
 const getCartById = (req, res) => {
     const cartId = req.params.cart_id;
@@ -416,5 +442,6 @@ module.exports = {
     getCartByUser,
     updateCartItem,
     deleteCartItem,
-    getCartById
+    getCartById,
+    deleteAllCartItems
 }

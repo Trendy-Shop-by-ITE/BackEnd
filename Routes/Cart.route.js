@@ -9,6 +9,7 @@ const cart = (app) =>{
     app.get('/api/cart/getByid/:cart_id', cartController.getCartById)
     app.put('/api/cart/:user_id/:cart_id', userGuard, cartController.updateCartItem);
     app.delete('/api/cart/:user_id/:cart_id', userGuard, cartController.deleteCartItem);
+    app.delete("/api/cart/delele", cartController.deleteAllCartItems)
     
 
 
