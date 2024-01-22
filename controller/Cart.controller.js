@@ -441,42 +441,42 @@ const getCartById = (req, res) => {
 
 
 const deleteAllCartItems = (req, res) => {
-  // Delete all cart items in the table
-  const deleteAllCartItemsQuery = "DELETE FROM cart";
-  db.query(deleteAllCartItemsQuery, (err, result) => {
-    if (err) {
-      console.error("Error deleting all cart items:", err);
-      return res.status(500).json({
-        error: true,
-        message: "Error deleting all cart items",
-        messages: {
-          err: "Error deleting all cart items",
-        },
-      });
-    }
+    // Delete all cart items in the table
+    const deleteAllCartItemsQuery = "DELETE FROM cart";
+    db.query(deleteAllCartItemsQuery, (err, result) => {
+        if (err) {
+            console.error("Error deleting all cart items:", err);
+            return res.status(500).json({
+                error: true,
+                message: "Error deleting all cart items",
+                messages: {
+                    err: "Error deleting all cart items!"
+                }
+            });
 
-    // Check if any items were deleted
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        error: true,
-        message: "No cart items found to delete",
-        messages: {
-          err: "No cart items found to delete",
-        },
-      });
-    }
+        }
 
-    res.json({ message: "Bought successfully" });
-  });
+        // Check if any items were deleted
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "No cart items found to delete",
+                messages: {
+                    err: "No cart items found to delete!"
+                }
+            }); 
+        }
+        res.json({ message: "Bought successfully" });
+    });
 };
 
 
 module.exports = {
-  addToCart,
-  getAllCarts,
-  getCartByUser,
-  updateCartItem,
-  deleteCartItem,
-  getCartById,
-  deleteAllCartItems,
+    addToCart,
+    getAllCarts,
+    getCartByUser,
+    updateCartItem,
+    deleteCartItem,
+    getCartById,
+    deleteAllCartItems,
 };

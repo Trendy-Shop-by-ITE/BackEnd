@@ -246,7 +246,6 @@ const deleteUser = (req, res) => {
 
 
 }
-
 const userLogin = (req, res) => {
     const { password, phone } = req.body;
     const message = {};
@@ -281,8 +280,8 @@ const userLogin = (req, res) => {
             res.status(404).json({
                 error: true,
                 message: "Login fail",
-                message: {
-                    err: "Phone does not exist"
+                messages: {
+                    err: "User not exits!"
                 }
             });
         } else {
